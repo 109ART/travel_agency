@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SafarPro admin panel + website — setup
 
-## Getting Started
+## 1. Extract and copy
 
-First, run the development server:
+Extract this zip. It contains only these folders: `app`, `components`, `lib`, `prisma`.
+Copy them into your project root (where your `package.json` is), and **replace**
+any files with the same name/path when asked.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Do NOT touch: `app/layout.tsx` (root layout), `next.config.*`, `tsconfig.json`,
+`.env`, `.gitignore`, `package.json` — this bundle does not include or change them.
+
+If your project previously had any of these, DELETE them first (old design, now replaced):
+- app/admin/bookings/
+- app/admin/services/
+- app/(site)/packages/
+- lib/packages.ts
+- components/site/PackageCard.tsx
+- any old prisma models for Booking/Traveler/UmrahPackage/FlightPackage/VisaPackage
+
+## 2. tsconfig.json check
+
+Make sure this exists in `tsconfig.json` under `compilerOptions`:
+```json
+"paths": { "@/*": ["./*"] }
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 3. .env check
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Your `.env` must have:
+```
+DATABASE_URL=postgresql://...?sslmode=verify-full
+SESSION_SECRET=<a long random string>
+```
+Generate the secret with:
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 4. .gitignore
 
-## Learn More
+Add this line if it is not already there:
+```
+/generated
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 5. Terminal commands (run in order)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm i lucide-react bcryptjs @prisma/adapter-pg pg dotenv
+npx prisma db push
+npx prisma generate
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+If `db push` warns about data loss on old tables, and that data is only test data, accept it
+(or run `npx prisma db push --accept-data-loss`).
 
-## Deploy on Vercel
+## 6. First run
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Open `http://localhost:3000/login` — no admin exists yet, so it shows
+   "Create the first super admin". Fill it in; you're logged in and redirected to `/admin`.
+2. Open `http://localhost:3000/request?type=umrah` in another tab and submit a test request.
+3. Back in `/admin/umrah`, the request appears. Save a quotation (price), then Confirm,
+   then set the payment status.
+4. `/admin/admins` lets the super admin create Admin/Staff accounts with different rights.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## File map
+
+```
+prisma/schema.prisma            Admin, User, UmrahRequest, VisaRequest, FlightBooking, BlogPost, AuditLog
+lib/prisma.ts                   Prisma client singleton (Prisma 7 + pg adapter)
+lib/permissions.ts              Role -> permission map
+lib/session.ts                  Cookie session + requireAdmin guard
+lib/whatsapp.ts                 wa.me link builder
+lib/public-actions.ts           Customer-facing form actions (no login required)
+lib/actions.ts                  Admin actions (login, quotes, status, payments, users, admins, blog)
+
+components/Logo.tsx
+components/admin/ui.tsx         Card, Btn, Badge, DataTable, Field, PageTitle...
+components/admin/NavLinks.tsx   Sidebar links, filtered by role
+components/admin/RequestControls.tsx   Quote form, status buttons, payment control, tabs
+components/site/Header.tsx
+components/site/Footer.tsx
+
+app/globals.css                 Navy/gold theme tokens
+app/login/page.tsx
+app/admin/layout.tsx            Sidebar + topbar shell
+app/admin/page.tsx              Dashboard
+app/admin/umrah/page.tsx
+app/admin/visa/page.tsx
+app/admin/flights/page.tsx
+app/admin/users/page.tsx
+app/admin/admins/page.tsx
+app/admin/blog/page.tsx
+app/admin/audit/page.tsx
+app/(site)/layout.tsx           Public header/footer wrapper
+app/(site)/page.tsx             Public home
+app/(site)/request/page.tsx     Customer request form (umrah/visa/flight)
+app/(site)/blog/page.tsx
+app/(site)/blog/[slug]/page.tsx
+```
+
+## Roles
+
+| Right | Super admin | Admin | Staff |
+|---|---|---|---|
+| Requests (Umrah/Visa/Flights, quotes, payments) | Yes | Yes | Yes |
+| Users | Yes | Yes | Yes |
+| Blog | Yes | Yes | No |
+| Admins | Yes | No | No |
+| Audit | Yes | Yes | No |
