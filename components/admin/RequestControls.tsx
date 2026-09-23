@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Badge, Btn, inputCls, tone } from "@/components/admin/ui";
-import { setQuote, setRequestStatus, setPaymentStatus } from "@/lib/actions";
+import { setQuote, setCost, setRequestStatus, setPaymentStatus } from "@/lib/actions";
 
 export type Kind = "umrah" | "visa" | "flight";
 
@@ -61,6 +61,47 @@ export function QuoteForm({ kind, id, price, button }: { kind: Kind; id: string;
       />
       <Btn tone="navy" className="!px-2.5 !py-1 text-xs">
         {button}
+      </Btn>
+    </form>
+  );
+}
+
+// Supplier name + cost price (what SafarPro pays the supplier), used by the sales/profit report
+export function CostForm({
+  kind,
+  id,
+  costPrice,
+  supplierName,
+}: {
+  kind: Kind;
+  id: string;
+  costPrice: number | null;
+  supplierName: string | null;
+}) {
+  return (
+    <form action={setCost} className="flex flex-wrap items-center gap-2">
+      <input type="hidden" name="kind" value={kind} />
+      <input type="hidden" name="id" value={id} />
+      <input
+        name="supplierName"
+        required
+        defaultValue={supplierName ?? undefined}
+        placeholder="Supplier"
+        aria-label="Supplier name"
+        className={`${inputCls} !w-28 !py-1`}
+      />
+      <input
+        name="costPrice"
+        type="number"
+        min={1}
+        required
+        defaultValue={costPrice ?? undefined}
+        placeholder="Cost PKR"
+        aria-label="Cost price in PKR"
+        className={`${inputCls} !w-24 !py-1`}
+      />
+      <Btn tone="ghost" className="!px-2.5 !py-1 text-xs">
+        Save cost
       </Btn>
     </form>
   );

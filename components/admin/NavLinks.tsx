@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Landmark, Stamp, Plane, Users, FileText, ShieldCheck, History } from "lucide-react";
+import { LayoutDashboard, Landmark, Stamp, Plane, Users, FileText, ShieldCheck, History, LineChart } from "lucide-react";
 import { can, type Perm, type Role } from "@/lib/permissions";
 
 const ITEMS: { href: string; label: string; Icon: typeof LayoutDashboard; perm?: Perm }[] = [
@@ -10,6 +10,7 @@ const ITEMS: { href: string; label: string; Icon: typeof LayoutDashboard; perm?:
   { href: "/admin/umrah", label: "Umrah requests", Icon: Landmark, perm: "requests" },
   { href: "/admin/visa", label: "Visa requests", Icon: Stamp, perm: "requests" },
   { href: "/admin/flights", label: "Flight bookings", Icon: Plane, perm: "requests" },
+  { href: "/admin/sales", label: "Sales & profits", Icon: LineChart, perm: "sales" },
   { href: "/admin/users", label: "User management", Icon: Users, perm: "users" },
   { href: "/admin/blog", label: "Blog and content", Icon: FileText, perm: "content" },
   { href: "/admin/admins", label: "Admins and rights", Icon: ShieldCheck, perm: "admins" },

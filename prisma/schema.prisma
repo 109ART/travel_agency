@@ -42,7 +42,6 @@ model Admin {
   createdAt    DateTime  @default(now())
 }
 
-// Single User model, linked to all three request types
 model User {
   id         String   @id @default(cuid())
   name       String
@@ -73,8 +72,10 @@ model UmrahRequest {
   notes         String?
   cnic          String
   passportNo    String
-  quotedPrice   Int? // PKR
+  quotedPrice   Int? // PKR, charged to customer
   quotedAt      DateTime?
+  supplierName  String?
+  costPrice     Int? // PKR, paid to supplier
   status        QuoteStatus   @default(PENDING)
   paymentStatus PaymentStatus @default(PENDING)
   createdAt     DateTime      @default(now())
@@ -97,8 +98,10 @@ model VisaRequest {
   cnic           String
   passportNo     String
   notes          String?
-  quotedPrice    Int? // PKR
+  quotedPrice    Int? // PKR, charged to customer
   quotedAt       DateTime?
+  supplierName   String?
+  costPrice      Int? // PKR, paid to supplier
   status         QuoteStatus   @default(PENDING)
   paymentStatus  PaymentStatus @default(PENDING)
   createdAt      DateTime      @default(now())
@@ -112,7 +115,7 @@ model FlightBooking {
   reference     String        @unique
   userId        String
   user          User          @relation(fields: [userId], references: [id])
-  tripType      String // One way / Return
+  tripType      String
   fromCity      String
   toCity        String
   departureDate DateTime
@@ -122,7 +125,9 @@ model FlightBooking {
   cnic          String
   passportNo    String
   notes         String?
-  fare          Int? // PKR
+  fare          Int? // PKR, charged to customer
+  supplierName  String?
+  costPrice     Int? // PKR, paid to supplier
   status        FlightStatus  @default(PENDING)
   paymentStatus PaymentStatus @default(PENDING)
   createdAt     DateTime      @default(now())

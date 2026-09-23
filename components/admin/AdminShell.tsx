@@ -5,6 +5,8 @@ import { Menu, X, LifeBuoy } from "lucide-react";
 import Logo from "@/components/Logo";
 import NavLinks from "@/components/admin/NavLinks";
 import LogoutButton from "@/components/admin/LogoutButton";
+import GlobalSearch from "@/components/admin/GlobalSearch";
+import RefreshButton from "@/components/admin/RefreshButton";
 import type { Role } from "@/lib/permissions";
 
 export default function AdminShell({
@@ -72,18 +74,24 @@ export default function AdminShell({
       </aside>
 
       <div className="min-w-0 flex-1">
-        {/* Top header - user section kept exactly as before */}
-        <header className="flex items-center justify-end gap-4 border-b border-navy-900/10 bg-white px-4 py-3 lg:px-6">
-          <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 flex-none place-items-center rounded-full bg-navy-900 font-semibold text-gold-400">
-              {name.charAt(0).toUpperCase()}
-            </span>
-            <div className="text-sm leading-tight">
-              <p className="font-semibold text-navy-900">{name}</p>
-              <p className="text-slate-500">{role.replace("_", " ").toLowerCase()}</p>
-            </div>
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-navy-900/10 bg-white px-4 py-3 lg:px-6">
+          <div className="order-2 w-full lg:order-1 lg:w-auto lg:flex-1">
+            <GlobalSearch />
           </div>
-          <LogoutButton />
+
+          <div className="order-1 ml-auto flex items-center gap-3 lg:order-2 lg:ml-0">
+            <RefreshButton />
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 flex-none place-items-center rounded-full bg-navy-900 font-semibold text-gold-400">
+                {name.charAt(0).toUpperCase()}
+              </span>
+              <div className="hidden text-sm leading-tight sm:block">
+                <p className="font-semibold text-navy-900">{name}</p>
+                <p className="text-slate-500">{role.replace("_", " ").toLowerCase()}</p>
+              </div>
+            </div>
+            <LogoutButton />
+          </div>
         </header>
         <main className="space-y-6 p-4 lg:p-8">{children}</main>
       </div>

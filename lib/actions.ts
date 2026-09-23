@@ -93,6 +93,28 @@ export async function setQuote(fd: FormData) {
   done();
 }
 
+// ---------- Cost price / supplier (for the sales & profit report) ----------
+export async function setCost(fd: FormData) {
+  const me = await requireAdmin("requests");
+  const kind = str(fd, "kind");
+  const id = str(fd, "id");
+  const costPrice = num(fd, "costPrice");
+  const supplierName = str(fd, "supplierName");
+  if (costPrice <= 0 || !supplierName) return;
+
+  if (kind === "umrah") {
+    const r = await prisma.umrahRequest.update({ where: { id }, data: { costPrice, supplierName }, select: { reference: true } });
+    await log(me.name, `Recorded supplier cost PKR ${costPrice} (${supplierName})`, r.reference);
+  } else if (kind === "visa") {
+    const r = await prisma.visaRequest.update({ where: { id }, data: { costPrice, supplierName }, select: { reference: true } });
+    await log(me.name, `Recorded supplier cost PKR ${costPrice} (${supplierName})`, r.reference);
+  } else if (kind === "flight") {
+    const r = await prisma.flightBooking.update({ where: { id }, data: { costPrice, supplierName }, select: { reference: true } });
+    await log(me.name, `Recorded supplier cost PKR ${costPrice} (${supplierName})`, r.reference);
+  }
+  done();
+}
+
 // ---------- Confirm / cancel ----------
 export async function setRequestStatus(fd: FormData) {
   const me = await requireAdmin("requests");
